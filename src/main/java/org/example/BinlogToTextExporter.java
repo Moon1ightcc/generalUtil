@@ -1,7 +1,8 @@
 package org.example;
 
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
 import com.github.shyiko.mysql.binlog.BinaryLogFileReader;
-
 
 import java.io.*;
 
@@ -10,9 +11,15 @@ import com.github.shyiko.mysql.binlog.event.deserialization.ChecksumType;
 import com.github.shyiko.mysql.binlog.event.deserialization.EventDeserializer;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
 
 public class BinlogToTextExporter {
+
+    // 默认字符集配置（根据实际情况调整，例如：GBK, ISO-8859-1 等）
+    private static final String DEFAULT_CHARSET = "GBK";
+    // 存储表结构元数据，key为tableId，value为字段类型数组
+    private static final Map<Long, int[]> tableColumnTypes = new HashMap<>();
 
     public static void main(String[] args) {
         String binlogPath = "C:\\Users\\shenqing\\OneDrive\\Desktop\\mysql-bin.000373"; // 替换为你的 binlog 文件路径
@@ -44,11 +51,12 @@ public class BinlogToTextExporter {
     private static String formatEvent(Event event) {
         EventHeader header = event.getHeader();
         StringBuilder sb = new StringBuilder();
+        String format = DateUtil.format(new DateTime(header.getTimestamp()), "yyyy-MM-dd HH:mm:ss");
 
         // 基础事件信息
-        sb.append(String.format("\n[Event] %s | Timestamp: %d | server_id: %d",
+        sb.append(String.format("\n[Event] %s | Timestamp: %s | server_id: %d",
                 header.getEventType(),
-                header.getTimestamp(),
+                format,
                 header.getServerId()
         ));
 
@@ -101,17 +109,26 @@ public class BinlogToTextExporter {
         }
         return sb.toString();
     }
-
     private static String formatRow(Object[] row) {
         StringBuilder sb = new StringBuilder();
         for (Object value : row) {
             if (value instanceof byte[]) {
-                // 处理二进制数据（如 BLOB/VARCHAR）
-                sb.append(new String((byte[]) value, StandardCharsets.UTF_8)).append(", ");
+                // 将字节数组转为字符串，并处理转义符
+                String strValue = new String((byte[]) value, StandardCharsets.UTF_8);
+                strValue = unescapeJson(strValue); // 自定义转义符处理
+                sb.append(strValue).append(", ");
             } else {
                 sb.append(value).append(", ");
             }
         }
-        return sb.length() > 0 ? sb.substring(0, sb.length() - 2) : "";
+        return !sb.isEmpty() ? sb.substring(0, sb.length() - 2) : "";
+    }
+
+    private static String unescapeJson(String json) {
+        // 处理常见的 JSON 转义符
+        return json.replace("\\\"", "\"")  // 转义双引号
+                .replace("\\n", "\n")   // 转义换行符
+                .replace("\\t", "\t")    // 转义制表符
+                .replace("\\\\", "\\");  // 转义反斜杠
     }
 }
