@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
@@ -34,12 +35,24 @@ public class TimeFormat {
         LocalTime thresholdTime = LocalTime.of(12, 30, 10);
         System.out.println(thresholdTime);
 
+        // 方式1：使用 DateUtil.parse 解析
+        String formattedDate1 = DateUtil.format(DateTime.now(), "yyyy-MM-dd");
+        System.out.println(formattedDate1);  // 输出: 2025-05-05
+
 
         long currentTimeMillis = System.currentTimeMillis();
 
         Long aLong = Long.valueOf(String.valueOf(currentTimeMillis));
 
         String format = DateUtil.format(new DateTime(aLong), "yyyy-MM-dd");
+
+
+        LocalDate localDate = LocalDate.parse("2025-05-30 00:00:00", DatePattern.NORM_DATETIME_FORMATTER);
+        System.out.println("localDate: " + localDate);
+
+        String s = " 12134";
+        System.out.println(s.trim());
+
         System.out.println(format);
 
     }

@@ -1,9 +1,11 @@
 package org.example;
 
+import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONUtil;
 import com.google.gson.Gson;
 
 import java.math.BigDecimal;
+import java.util.Iterator;
 
 
 /**
@@ -25,7 +27,7 @@ public class Object2String {
 
         System.out.println(bigDecimal);
 
-        Gson gson = new Gson();
+        JSONArray jsonArray = JSONUtil.parseArray("[\"600715\", \"300043\", \"300002\", \"600633\", \"300113\", \"002624\", \"002517\", \"300148\", \"002602\", \"002174\", \"002605\", \"300031\", \"300533\", \"300299\", \"603258\", \"002425\", \"300052\", \"300459\", \"002558\", \"002168\", \"603444\", \"300494\", \"002555\", \"300467\", \"600892\", \"300315\"]");
 
         System.out.println(JSONUtil.toJsonStr(root));
 
